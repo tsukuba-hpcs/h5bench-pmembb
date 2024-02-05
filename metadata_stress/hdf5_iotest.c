@@ -30,7 +30,7 @@ main(int argc, char *argv[])
     int           my_proc_row, my_proc_col;
     unsigned long my_rows, my_cols;
     unsigned int  istep, iarray;
-    double *      wbuf, *rbuf;
+    double       *wbuf, *rbuf;
     size_t        i;
 
     hid_t   mspace, dxpl, fapl, file, dset, fspace;
@@ -321,7 +321,6 @@ main(int argc, char *argv[])
 
     read_phase += MPI_Wtime();
 
-    assert(H5Pclose(fapl) >= 0);
     assert(H5Pclose(dxpl) >= 0);
     assert(H5Sclose(mspace) >= 0);
 
@@ -329,11 +328,12 @@ main(int argc, char *argv[])
 
     wall_time += MPI_Wtime();
 
+    assert((file = H5Fopen(config.hdf5_file, H5F_ACC_RDONLY, fapl)) >= 0);
     if (rank == 0) {
-        assert((file = H5Fopen(config.hdf5_file, H5F_ACC_RDONLY, H5P_DEFAULT)) >= 0);
         assert(H5Fget_filesize(file, &fsize) >= 0);
-        assert(H5Fclose(file) >= 0);
     }
+    assert(H5Fclose(file) >= 0);
+    assert(H5Pclose(fapl) >= 0);
 
     // TODO: compare the write and read buffers
 
